@@ -776,19 +776,19 @@ const RegistrationsTab = () => {
                                    by {reg.approved_by}
                                  </div>
                                )}
-                               {reg.status === 'approved' && (() => {
-                                 const verification = getVerificationStatus(reg);
-                                 return (
-                                   <div className="text-xs">
-                                     <Badge 
-                                       variant={verification.isVerified ? "default" : "secondary"}
-                                       className={verification.isVerified ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"}
-                                     >
-                                       {verification.isVerified ? "Verified" : "Not Verified"}
-                                     </Badge>
-                                   </div>
-                                 );
-                               })()}
+                                {reg.status === 'approved' && reg.fee > 0 && (() => {
+                                  const verification = getVerificationStatus(reg);
+                                  return (
+                                    <div className="text-xs">
+                                      <Badge 
+                                        variant={verification.isVerified ? "default" : "secondary"}
+                                        className={verification.isVerified ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"}
+                                      >
+                                        {verification.isVerified ? "Verified" : "Not Verified"}
+                                      </Badge>
+                                    </div>
+                                  );
+                                })()}
                              </div>
                            </TableCell>
                           <TableCell className="text-sm font-medium">₹{reg.fee}</TableCell>
@@ -892,17 +892,17 @@ const RegistrationsTab = () => {
                            <Badge className={getStatusBadgeColor(reg.status)}>
                              {reg.status}
                            </Badge>
-                           {reg.status === 'approved' && (() => {
-                             const verification = getVerificationStatus(reg);
-                             return (
-                               <Badge 
-                                 variant={verification.isVerified ? "default" : "secondary"}
-                                 className={verification.isVerified ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"}
-                               >
-                                 {verification.isVerified ? "Verified" : "Not Verified"}
-                               </Badge>
-                             );
-                           })()}
+                            {reg.status === 'approved' && reg.fee > 0 && (() => {
+                              const verification = getVerificationStatus(reg);
+                              return (
+                                <Badge 
+                                  variant={verification.isVerified ? "default" : "secondary"}
+                                  className={verification.isVerified ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"}
+                                >
+                                  {verification.isVerified ? "Verified" : "Not Verified"}
+                                </Badge>
+                              );
+                            })()}
                          </div>
                        </div>
                       

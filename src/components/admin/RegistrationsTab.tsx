@@ -484,8 +484,21 @@ const RegistrationsTab = () => {
 
   const getVerificationStatus = (registration: Registration) => {
     console.log('getVerificationStatus for:', registration.customer_id, registration.registration_verifications);
-    if (registration.registration_verifications && registration.registration_verifications.length > 0) {
-      const verification = registration.registration_verifications[0];
+    
+    // Handle both array and single object cases
+    let verification = null;
+    
+    if (registration.registration_verifications) {
+      if (Array.isArray(registration.registration_verifications)) {
+        // Array case - get first element
+        verification = registration.registration_verifications.length > 0 ? registration.registration_verifications[0] : null;
+      } else {
+        // Single object case
+        verification = registration.registration_verifications;
+      }
+    }
+    
+    if (verification) {
       console.log('Verification found:', verification);
       return {
         isVerified: verification.verified,
@@ -493,6 +506,7 @@ const RegistrationsTab = () => {
         verifiedAt: verification.verified_at
       };
     }
+    
     console.log('No verification found for:', registration.customer_id);
     return { isVerified: false, verifiedBy: null, verifiedAt: null };
   };

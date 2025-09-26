@@ -42,6 +42,11 @@ interface Registration {
     name: string;
     district: string;
   };
+  registration_verifications?: {
+    verified: boolean;
+    verified_by: string;
+    verified_at: string;
+  }[];
 }
 
 const RegistrationsTab = () => {
@@ -73,7 +78,8 @@ const RegistrationsTab = () => {
           *,
           categories!registrations_category_id_fkey (name_english, name_malayalam),
           preference_categories:categories!registrations_preference_category_id_fkey (name_english, name_malayalam),
-          panchayaths (name, district)
+          panchayaths (name, district),
+          registration_verifications (verified, verified_by, verified_at)
         `)
         .order('created_at', { ascending: false });
 
@@ -475,6 +481,18 @@ const RegistrationsTab = () => {
     return colors[colorIndex];
   };
 
+  const getVerificationStatus = (registration: Registration) => {
+    if (registration.registration_verifications && registration.registration_verifications.length > 0) {
+      const verification = registration.registration_verifications[0];
+      return {
+        isVerified: verification.verified,
+        verifiedBy: verification.verified_by,
+        verifiedAt: verification.verified_at
+      };
+    }
+    return { isVerified: false, verifiedBy: null, verifiedAt: null };
+  };
+
   const filteredRegistrations = registrations.filter(reg => {
     const matchesSearch = searchQuery === '' || 
       reg.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -730,18 +748,31 @@ const RegistrationsTab = () => {
                               )}
                             </div>
                           </TableCell>
-                          <TableCell>
-                            <div className="space-y-1">
-                              <Badge className={getStatusBadgeColor(reg.status)}>
-                                {reg.status}
-                              </Badge>
-                              {reg.approved_by && (
-                                <div className="text-xs text-muted-foreground">
-                                  by {reg.approved_by}
-                                </div>
-                              )}
-                            </div>
-                          </TableCell>
+                           <TableCell>
+                             <div className="space-y-1">
+                               <Badge className={getStatusBadgeColor(reg.status)}>
+                                 {reg.status}
+                               </Badge>
+                               {reg.approved_by && (
+                                 <div className="text-xs text-muted-foreground">
+                                   by {reg.approved_by}
+                                 </div>
+                               )}
+                               {reg.status === 'approved' && (() => {
+                                 const verification = getVerificationStatus(reg);
+                                 return (
+                                   <div className="text-xs">
+                                     <Badge 
+                                       variant={verification.isVerified ? "default" : "secondary"}
+                                       className={verification.isVerified ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"}
+                                     >
+                                       {verification.isVerified ? "Verified" : "Not Verified"}
+                                     </Badge>
+                                   </div>
+                                 );
+                               })()}
+                             </div>
+                           </TableCell>
                           <TableCell className="text-sm font-medium">₹{reg.fee}</TableCell>
                           <TableCell>
                             <div className="space-y-1 text-xs">
@@ -836,13 +867,26 @@ const RegistrationsTab = () => {
                 return (
                   <Card key={reg.id} className={`${categoryColor.bg} ${categoryColor.border}`}>
                     <CardContent className="p-4 space-y-3">
-                      {/* Header with Customer ID and Status */}
-                      <div className="flex justify-between items-start">
-                        <div className="font-mono text-sm font-bold">{reg.customer_id}</div>
-                        <Badge className={getStatusBadgeColor(reg.status)}>
-                          {reg.status}
-                        </Badge>
-                      </div>
+                       {/* Header with Customer ID and Status */}
+                       <div className="flex justify-between items-start">
+                         <div className="font-mono text-sm font-bold">{reg.customer_id}</div>
+                         <div className="space-y-1">
+                           <Badge className={getStatusBadgeColor(reg.status)}>
+                             {reg.status}
+                           </Badge>
+                           {reg.status === 'approved' && (() => {
+                             const verification = getVerificationStatus(reg);
+                             return (
+                               <Badge 
+                                 variant={verification.isVerified ? "default" : "secondary"}
+                                 className={verification.isVerified ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"}
+                               >
+                                 {verification.isVerified ? "Verified" : "Not Verified"}
+                               </Badge>
+                             );
+                           })()}
+                         </div>
+                       </div>
                       
                       {/* Contact Information */}
                       <div className="space-y-1">

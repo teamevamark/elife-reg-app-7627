@@ -88,6 +88,7 @@ const RegistrationsTab = () => {
         toast.error('Error fetching registrations');
       } else {
         console.log('Fetched registrations:', data);
+        console.log('Verification data for ESEP9698956461T:', data?.find(r => r.customer_id === 'ESEP9698956461T')?.registration_verifications);
         setRegistrations(data as unknown as Registration[] || []);
       }
     } catch (error) {
@@ -482,14 +483,17 @@ const RegistrationsTab = () => {
   };
 
   const getVerificationStatus = (registration: Registration) => {
+    console.log('getVerificationStatus for:', registration.customer_id, registration.registration_verifications);
     if (registration.registration_verifications && registration.registration_verifications.length > 0) {
       const verification = registration.registration_verifications[0];
+      console.log('Verification found:', verification);
       return {
         isVerified: verification.verified,
         verifiedBy: verification.verified_by,
         verifiedAt: verification.verified_at
       };
     }
+    console.log('No verification found for:', registration.customer_id);
     return { isVerified: false, verifiedBy: null, verifiedAt: null };
   };
 

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Search } from 'lucide-react';
+import { Search, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Registration {
@@ -90,6 +90,29 @@ const CheckStatus = () => {
       default:
         return 'Pending / കാത്തിരിക്കുന്നു';
     }
+  };
+
+  const handleShareToWhatsApp = () => {
+    if (!registration) return;
+    
+    const whatsappNumber = '7025715877';
+    const message = `*Payment Required - Registration Details*
+    
+👤 *Name:* ${registration.full_name}
+📱 *Mobile:* ${registration.mobile_number}
+🆔 *Customer ID:* ${registration.customer_id}
+📋 *Category:* ${registration.categories?.name_english || 'N/A'}
+💰 *Amount:* ₹${registration.fee}
+📅 *Registration Date:* ${new Date(registration.created_at).toLocaleDateString()}
+⏰ *Expiry Date:* ${new Date(registration.expiry_date).toLocaleDateString()}
+
+Please complete the payment by scanning the QR code to process your registration.
+
+Need help with payment? Please reply to this message.`;
+
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+    toast.success('Opening WhatsApp to share payment details');
   };
 
 
@@ -205,9 +228,22 @@ const CheckStatus = () => {
                 )}
                 {registration.status === 'pending' && (registration.fee ?? 0) > 0 && (
                   <div className="mt-4 p-4 border rounded-lg bg-muted">
-                    <p className="font-semibold mb-2">Complete Payment</p>
+                    <div className="flex justify-between items-center mb-2">
+                      <p className="font-semibold">Complete Payment</p>
+                      <Button
+                        onClick={handleShareToWhatsApp}
+                        variant="outline"
+                        size="sm"
+                        className="bg-green-500 hover:bg-green-600 text-white border-green-500 hover:border-green-600"
+                      >
+                        <Share2 className="w-4 h-4 mr-2" />
+                        Share to WhatsApp
+                      </Button>
+                    </div>
                     <p className="text-sm text-muted-foreground mb-4">
                       Scan the QR code below to pay the registration fee of ₹{registration.fee}. After payment, your application will be processed.
+                      <br />
+                      <span className="text-green-600 font-medium">Need help? Click "Share to WhatsApp" to get payment assistance.</span>
                     </p>
                     {registration.categories?.qr_code_url ? (
                       <div className="flex justify-center">
@@ -232,6 +268,11 @@ const CheckStatus = () => {
                         </div>
                       </div>
                     )}
+                    <div className="mt-4 text-center">
+                      <p className="text-xs text-muted-foreground">
+                        Having trouble with payment? Click the WhatsApp button above for instant support.
+                      </p>
+                    </div>
                   </div>
                 )}
 

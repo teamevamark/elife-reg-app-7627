@@ -275,7 +275,9 @@ export type Database = {
           is_active: boolean | null
           name_english: string
           name_malayalam: string
+          offer_end_date: string | null
           offer_fee: number | null
+          offer_start_date: string | null
           qr_code_url: string | null
           updated_at: string
         }
@@ -288,7 +290,9 @@ export type Database = {
           is_active?: boolean | null
           name_english: string
           name_malayalam: string
+          offer_end_date?: string | null
           offer_fee?: number | null
+          offer_start_date?: string | null
           qr_code_url?: string | null
           updated_at?: string
         }
@@ -301,7 +305,9 @@ export type Database = {
           is_active?: boolean | null
           name_english?: string
           name_malayalam?: string
+          offer_end_date?: string | null
           offer_fee?: number | null
+          offer_start_date?: string | null
           qr_code_url?: string | null
           updated_at?: string
         }

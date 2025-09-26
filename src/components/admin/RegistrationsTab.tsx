@@ -79,7 +79,7 @@ const RegistrationsTab = () => {
           categories!registrations_category_id_fkey (name_english, name_malayalam),
           preference_categories:categories!registrations_preference_category_id_fkey (name_english, name_malayalam),
           panchayaths (name, district),
-          registration_verifications (verified, verified_by, verified_at)
+          registration_verifications!registration_verifications_registration_id_fkey (verified, verified_by, verified_at)
         `)
         .order('created_at', { ascending: false });
 
@@ -88,7 +88,7 @@ const RegistrationsTab = () => {
         toast.error('Error fetching registrations');
       } else {
         console.log('Fetched registrations:', data);
-        console.log('Verification data for ESEP9698956461T:', data?.find(r => r.customer_id === 'ESEP9698956461T')?.registration_verifications);
+        console.log('Verification data for ESEP10101010101:', data?.find(r => r.customer_id === 'ESEP10101010101')?.registration_verifications);
         setRegistrations(data as unknown as Registration[] || []);
       }
     } catch (error) {

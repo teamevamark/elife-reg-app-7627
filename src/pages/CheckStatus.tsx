@@ -108,7 +108,7 @@ const CheckStatus = () => {
 
 Please complete the payment by scanning the QR code to process your registration.
 
-Need help with payment? Please reply to this message.`;
+Need help with payment? Please reply to this .`;
 
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');

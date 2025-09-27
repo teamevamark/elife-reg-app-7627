@@ -62,30 +62,36 @@ const RegistrationForm = ({
 
   const fetchPanchayaths = async () => {
     try {
+      console.log('🔄 Fetching panchayaths...');
       const panchayathData = await externalDbService.getPanchayaths();
+      console.log('✅ Panchayaths fetched:', panchayathData);
       setPanchayaths(panchayathData);
     } catch (error) {
-      console.error('Error fetching panchayaths:', error);
+      console.error('❌ Error fetching panchayaths:', error);
       toast.error('Failed to load panchayaths. Please try again.');
     }
   };
 
   const fetchWards = async (panchayathId: string) => {
     try {
+      console.log('🔄 Fetching wards for panchayath:', panchayathId);
       const wardData = await externalDbService.getWardsByPanchayath(panchayathId);
+      console.log('✅ Wards fetched:', wardData);
       setWards(wardData);
     } catch (error) {
-      console.error('Error fetching wards:', error);
+      console.error('❌ Error fetching wards:', error);
       toast.error('Failed to load wards. Please try again.');
     }
   };
 
   const fetchAgents = async () => {
     try {
+      console.log('🔄 Fetching agents...');
       const agentData = await externalDbService.getAgents();
+      console.log('✅ Agents fetched:', agentData);
       setAgents(agentData);
     } catch (error) {
-      console.error('Error fetching agents:', error);
+      console.error('❌ Error fetching agents:', error);
       // Don't show error toast for agents as it's optional
     }
   };

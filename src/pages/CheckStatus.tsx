@@ -207,7 +207,7 @@ const CheckStatus = () => {
                     <p className="text-sm text-muted-foreground mb-4">
                       Scan the QR code below to pay the registration fee of ₹{registration.fee}. After payment, your application will be processed.
                       <br />
-                      <span className="text-green-600 font-medium">Need help? Click "Share to WhatsApp" to get payment assistance.</span>
+                      <span className="text-green-600 font-medium">പണം അടച്ചതിനു ശേഷവും പെന്റിങ് കാണിക്കുകയാണെങ്കിൽ ഇവിടെ കാണുന്ന വാട്ട്സ് ആപ്പ് ബട്ടൺ നോക്കിയാൽ നിങ്ങളുടെ പണമടച്ച സ്ക്രീൻ ഷോട്ട് അയക്കാവുന്നതാണ് </span>
                     </p>
                     {registration.categories?.qr_code_url ? <div className="flex justify-center">
                         <div className="bg-white p-4 rounded-lg border shadow-sm">

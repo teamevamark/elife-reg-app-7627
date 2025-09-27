@@ -48,7 +48,6 @@ const RegistrationForm = ({
   useEffect(() => {
     fetchPanchayaths();
     fetchCategories();
-    fetchAgents();
   }, []);
 
   useEffect(() => {
@@ -56,9 +55,19 @@ const RegistrationForm = ({
       fetchWards(formData.panchayathId);
     } else {
       setWards([]);
-      setFormData(prev => ({ ...prev, wardId: '' }));
+      setAgents([]);
+      setFormData(prev => ({ ...prev, wardId: '', agent: '' }));
     }
   }, [formData.panchayathId]);
+
+  useEffect(() => {
+    if (formData.wardId) {
+      fetchAgentsByWard(formData.wardId);
+    } else {
+      setAgents([]);
+      setFormData(prev => ({ ...prev, agent: '' }));
+    }
+  }, [formData.wardId]);
 
   const fetchPanchayaths = async () => {
     try {
@@ -93,6 +102,20 @@ const RegistrationForm = ({
     } catch (error) {
       console.error('❌ Error fetching agents:', error);
       // Don't show error toast for agents as it's optional
+    }
+  };
+
+  const fetchAgentsByWard = async (wardId: string) => {
+    try {
+      console.log('🔄 Fetching agents for ward:', wardId);
+      const agentData = await externalDbService.getAgents();
+      // Filter agents by ward_id
+      const filteredAgents = agentData.filter(agent => agent.ward_id === wardId);
+      console.log('✅ Ward agents fetched:', filteredAgents);
+      setAgents(filteredAgents);
+    } catch (error) {
+      console.error('❌ Error fetching ward agents:', error);
+      setAgents([]);
     }
   };
 

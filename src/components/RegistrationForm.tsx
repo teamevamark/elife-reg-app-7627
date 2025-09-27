@@ -122,7 +122,7 @@ const RegistrationForm = ({
         address: formData.address,
         panchayath_id: formData.panchayathId || null,
         ward: wardName, // Use ward name for the registration
-        agent: formData.agent || null,
+        agent: formData.agent === 'none' ? null : formData.agent || null,
         category_id: category.id,
         preference_category_id: formData.preferenceId || null,
         fee: category.offer_fee > 0 ? category.offer_fee : category.actual_fee,
@@ -222,7 +222,7 @@ const RegistrationForm = ({
               <SelectValue placeholder="Select Agent (Optional)" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">No Agent</SelectItem>
+              <SelectItem value="none">No Agent</SelectItem>
               {agents.map(agent => <SelectItem key={agent.id} value={agent.name}>
                   {agent.name} {agent.phone ? `- ${agent.phone}` : ''}
                 </SelectItem>)}

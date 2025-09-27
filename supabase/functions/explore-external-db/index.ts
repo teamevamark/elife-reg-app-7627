@@ -23,7 +23,7 @@ serve(async (req) => {
     // Create client for external database
     const externalSupabase = createClient(EXTERNAL_SUPABASE_URL, EXTERNAL_SUPABASE_ANON_KEY);
 
-    const { action } = await req.json();
+    const { action, panchayath_id } = await req.json().catch(() => ({ action: 'explore_schema' }));
 
     let result;
 
@@ -59,35 +59,92 @@ serve(async (req) => {
         break;
 
       case 'fetch_panchayaths':
-        const { data: panchayathData, error: panchayathError } = await externalSupabase
-          .from('panchayaths')
-          .select('*')
-          .order('name');
+        // Try multiple possible table names
+        let panchayathData = null;
+        let panchayathError = null;
         
-        if (panchayathError) throw panchayathError;
-        result = { panchayaths: panchayathData };
+        const panchayathTables = ['panchayaths', 'panchayath'];
+        for (const tableName of panchayathTables) {
+          try {
+            const { data, error } = await externalSupabase
+              .from(tableName)
+              .select('*')
+              .order('name');
+            
+            if (data && !error) {
+              panchayathData = data;
+              break;
+            }
+            panchayathError = error;
+          } catch (e) {
+            panchayathError = e;
+          }
+        }
+        
+        if (!panchayathData && panchayathError) throw panchayathError;
+        result = { panchayaths: panchayathData || [] };
         break;
 
       case 'fetch_wards':
-        const { panchayath_id } = await req.json();
-        const { data: wardData, error: wardError } = await externalSupabase
-          .from('wards')
-          .select('*')
-          .eq('panchayath_id', panchayath_id)
-          .order('name');
+        if (!panchayath_id) throw new Error('panchayath_id is required');
         
-        if (wardError) throw wardError;
-        result = { wards: wardData };
+        // Try multiple possible table names and column names
+        let wardData = null;
+        let wardError = null;
+        
+        const wardTables = ['wards', 'ward'];
+        const panchayathColumns = ['panchayath_id', 'panchayath', 'panchayath_uuid'];
+        
+        for (const tableName of wardTables) {
+          for (const columnName of panchayathColumns) {
+            try {
+              const { data, error } = await externalSupabase
+                .from(tableName)
+                .select('*')
+                .eq(columnName, panchayath_id)
+                .order('name');
+              
+              if (data && !error) {
+                wardData = data;
+                break;
+              }
+              wardError = error;
+            } catch (e) {
+              wardError = e;
+            }
+          }
+          if (wardData) break;
+        }
+        
+        if (!wardData && wardError) throw wardError;
+        result = { wards: wardData || [] };
         break;
 
       case 'fetch_agents':
-        const { data: agentData, error: agentError } = await externalSupabase
-          .from('agents')
-          .select('*')
-          .order('name');
+        // Try multiple possible table names
+        let agentData = null;
+        let agentError = null;
         
-        if (agentError) throw agentError;
-        result = { agents: agentData };
+        const agentTables = ['agents', 'agent', 'pros', 'pro'];
+        for (const tableName of agentTables) {
+          try {
+            const { data, error } = await externalSupabase
+              .from(tableName)
+              .select('*')
+              .order('name');
+            
+            if (data && !error) {
+              agentData = data;
+              break;
+            }
+            agentError = error;
+          } catch (e) {
+            agentError = e;
+          }
+        }
+        
+        if (!agentData && agentError) throw agentError;
+        result = { agents: agentData || [] };
         break;
 
       default:

@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Users, FileCheck, Link as LinkIcon, Megaphone } from 'lucide-react';
-import ExternalDBTest from '@/components/ExternalDBTest';
 
 interface Announcement {
   id: string;
@@ -111,13 +110,6 @@ const Index = () => {
         <div className="absolute top-10 left-10 w-20 h-20 bg-vibrant-blue/30 rounded-full blur-xl"></div>
         <div className="absolute bottom-10 right-10 w-32 h-32 bg-vibrant-green/30 rounded-full blur-xl"></div>
         <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-yellow-400/30 rounded-full blur-lg"></div>
-      </section>
-
-      {/* External DB Test - Temporary */}
-      <section className="py-10 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <ExternalDBTest />
-        </div>
       </section>
 
       {/* Quick Action Cards */}

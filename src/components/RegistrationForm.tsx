@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import { externalDbService, ExternalPanchayath, ExternalWard, ExternalAgent } from '@/services/externalDatabase';
 interface Category {
   id: string;
   name_english: string;
@@ -33,11 +34,13 @@ const RegistrationForm = ({
     mobileNumber: '',
     address: '',
     panchayathId: '',
-    ward: '',
+    wardId: '',
     agent: '',
     preferenceId: ''
   });
-  const [panchayaths, setPanchayaths] = useState<Panchayath[]>([]);
+  const [panchayaths, setPanchayaths] = useState<ExternalPanchayath[]>([]);
+  const [wards, setWards] = useState<ExternalWard[]>([]);
+  const [agents, setAgents] = useState<ExternalAgent[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -45,33 +48,74 @@ const RegistrationForm = ({
   useEffect(() => {
     fetchPanchayaths();
     fetchCategories();
+    fetchAgents();
   }, []);
+
+  useEffect(() => {
+    if (formData.panchayathId) {
+      fetchWards(formData.panchayathId);
+    } else {
+      setWards([]);
+      setFormData(prev => ({ ...prev, wardId: '' }));
+    }
+  }, [formData.panchayathId]);
+
   const fetchPanchayaths = async () => {
-    const {
-      data
-    } = await supabase.from('panchayaths').select('*').eq('is_active', true).order('name');
-    if (data) setPanchayaths(data);
+    try {
+      const panchayathData = await externalDbService.getPanchayaths();
+      setPanchayaths(panchayathData);
+    } catch (error) {
+      console.error('Error fetching panchayaths:', error);
+      toast.error('Failed to load panchayaths. Please try again.');
+    }
   };
+
+  const fetchWards = async (panchayathId: string) => {
+    try {
+      const wardData = await externalDbService.getWardsByPanchayath(panchayathId);
+      setWards(wardData);
+    } catch (error) {
+      console.error('Error fetching wards:', error);
+      toast.error('Failed to load wards. Please try again.');
+    }
+  };
+
+  const fetchAgents = async () => {
+    try {
+      const agentData = await externalDbService.getAgents();
+      setAgents(agentData);
+    } catch (error) {
+      console.error('Error fetching agents:', error);
+      // Don't show error toast for agents as it's optional
+    }
+  };
+
   const fetchCategories = async () => {
-    const {
-      data
-    } = await supabase.from('categories').select('*').eq('is_active', true).order('name_english');
+    const { data } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('is_active', true)
+      .order('name_english');
     if (data) setCategories(data);
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.fullName || !formData.mobileNumber || !formData.address || !formData.panchayathId || !formData.ward) {
+    if (!formData.fullName || !formData.mobileNumber || !formData.address || !formData.panchayathId || !formData.wardId) {
       toast.error('Please fill in all required fields');
       return;
     }
     setLoading(true);
     try {
+      // Get ward name from selected ward
+      const selectedWard = wards.find(w => w.id === formData.wardId);
+      const wardName = selectedWard?.name || formData.wardId;
+
       const registrationData = {
         full_name: formData.fullName,
         mobile_number: formData.mobileNumber,
         address: formData.address,
         panchayath_id: formData.panchayathId || null,
-        ward: formData.ward,
+        ward: wardName, // Use ward name for the registration
         agent: formData.agent || null,
         category_id: category.id,
         preference_category_id: formData.preferenceId || null,
@@ -147,18 +191,37 @@ const RegistrationForm = ({
 
         <div className="space-y-2">
           <Label htmlFor="ward">Ward * / വാർഡ് *</Label>
-          <Input id="ward" value={formData.ward} onChange={e => setFormData({
-          ...formData,
-          ward: e.target.value
-        })} required />
+          <Select value={formData.wardId} onValueChange={value => setFormData({
+            ...formData,
+            wardId: value
+          })} required>
+            <SelectTrigger>
+              <SelectValue placeholder="Select Ward" />
+            </SelectTrigger>
+            <SelectContent>
+              {wards.map(ward => <SelectItem key={ward.id} value={ward.id}>
+                  {ward.name}
+                </SelectItem>)}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="agent">Agent / P.R.O / ഏജന്റ് / പി.ആർ.ഒ (optional)</Label>
-          <Input id="agent" value={formData.agent} onChange={e => setFormData({
-          ...formData,
-          agent: e.target.value
-        })} />
+          <Select value={formData.agent} onValueChange={value => setFormData({
+            ...formData,
+            agent: value
+          })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select Agent (Optional)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">No Agent</SelectItem>
+              {agents.map(agent => <SelectItem key={agent.id} value={agent.name}>
+                  {agent.name} {agent.phone ? `- ${agent.phone}` : ''}
+                </SelectItem>)}
+            </SelectContent>
+          </Select>
         </div>
 
         {category.name_english === 'Job Card (Special)' && <div className="space-y-2">
